@@ -1,0 +1,25 @@
+﻿@model IEnumerable<WebStore.ProductServiceReference.ProductDTO>
+
+<h2>@ViewBag.Title</h2>
+
+<table class="table">
+    <tr>
+        @{
+            var count = 1;
+            foreach (var item in Model)
+            {
+                <td>
+                    <div onclick="location.href='@Url.Action("Details", "Products", new { id = item.ProductID })'">
+                            <img src="data:image;base64,@System.Convert.ToBase64String(item.Picture)" height="100" width="100" /><br />
+                            <b>@Html.DisplayFor(modelItem => item.Name)</b><br />
+                            $@Html.DisplayFor(modelItem => item.Price)<br />
+                    </div>
+                </td>
+                if (count % 3 == 0)
+                {
+                    @:</tr><tr>
+                }
+                count++;
+            }
+        }
+</table>

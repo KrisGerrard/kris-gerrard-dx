@@ -1,0 +1,164 @@
+﻿@model WebStore.ProductServiceReference.ProductDTO
+
+@{
+    ViewBag.Title = "Product Details";
+}
+
+@Scripts.Render("~/bundles/jquery")
+
+<h2>Details</h2>
+
+
+
+    <div class="col-xs-6">
+    <hr />
+    <dl class="dl-horizontal">
+
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Price)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Price)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ProductID)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ProductID)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Stock)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Stock)
+        </dd>
+
+        <dd>
+            @if (@Model.Discontinued == true)
+            {  
+                @:<text class="text-warning">This product has been discontinued</text>
+            }
+        </dd>
+
+
+    </dl>
+</div>
+
+<div class="col-xs-6">
+
+    @* Display Picture *@
+    <img src="data:image;base64,@System.Convert.ToBase64String(Model.Picture)" height="150" width="150" />
+
+    @* Display Plus/Minus input for quantity, default to 1 *@
+    <input type="number" id="quantity" class="form-control input-number input-sm" value="1" min="1">
+
+    @* Display button, if item is not discountinued *@
+    <button type="button" class="btn btn-primary" id="btnAddToCart" @if (@Model.Discontinued == true) {  @("disabled='1'")    }>Add to Cart</button>
+
+</div>
+
+<p>
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+
+<link href="~/Styles/mustang-modal.css" rel="stylesheet" />
+<script src="~/Scripts/mustang-modal.js"></script>
+<script type="text/jscript">
+    var Backorder;
+    $('#btnAddToCart').click(function () {
+        Qty = $('#quantity').val();
+        Stock = @(Model.Stock);
+        Backorder = false;
+        if (Stock < Qty) {
+            //Ask user to confirm quantity
+            MustangModal.prop({
+                title: "Stock is limited",
+                body: "Stock on this product is limited. Would you like to reduce the order to be fufilled (" + Stock +" units), or wait for stock to arrive?",
+                buttons: [
+                 {
+                     text: "Reduce order quantity",
+                     callback: function () {
+                         MustangModal.close();
+                         Qty = Stock;
+                         //order()
+                     }
+                 },
+                 {
+                     text: "Approve back order",
+                     callback: function () {
+                         MustangModal.close();
+                         Backorder = true;
+                         //order()
+                     }
+                 }],
+                animate: "toggle",
+                speed: 200,
+            }).open();
+        } else {
+            order();
+        }
+
+        function order() {
+            $.ajax({
+                url: '@Url.Action("AddToCart", "Orders")',
+                data: {
+                    ProductID: @(Model.ProductID),
+                    Quantity: Qty,
+                    Price: @(Model.Price),
+                    ProductName: "@(Model.Name)",
+                    BackOrder: Backorder
+                },
+                type: 'POST',
+                success: function(data) {
+                    $("#shoppingCartText").html(data);
+                    var MessageBody = "@Model.Name has been added to your cart"
+                    MustangModal.prop({
+                        title: "Shopping Cart",
+                        body: MessageBody,
+                        buttons: [
+                         {
+                             text: "View your cart",
+                             callback: function () {
+                                 window.location.href = '@Url.Action("ShoppingCart", "Orders")';
+                             }
+                         },
+                         {
+                             text: "Continue shopping",
+                             callback: function () {
+                                 MustangModal.close();
+                             }
+                         }],
+                        animate: "toggle",
+                        speed: 200,
+                    }).open();
+                },
+                error: function() {
+                    $("#shoppingCartText").html("Cart Error - Please contact Customer Support");
+                }
+            });
+        }
+    })
+</script>

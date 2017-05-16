@@ -1,0 +1,120 @@
+﻿@model IEnumerable<WebStore.Models.ShoppingCartItem>
+
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.ProductName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Quantity)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Price)
+        </th>
+        <th>
+            Order Status
+        </th>
+        <th>
+            Line Lotal
+        </th>
+        <th></th>
+    </tr>
+
+
+@foreach (var item in Model)
+{
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.ProductName)
+        </td>
+        <td>
+            <input class="col-xs-3 inputQty" type="number" min="1" id="@item.ProductID"
+                   name="@item.Quantity" value="@item.Quantity"/>
+        </td>
+        <td>
+            $@Html.DisplayFor(modelItem => item.Price)
+        </td>
+        <td>
+            @if (item.onBackOrder == true) {
+                @:"Item on backorder" 
+            } else {
+                @:"In stock" 
+            }
+        </td>
+        <td>
+            $@(item.Price * item.Quantity)
+        </td>
+        <td>
+            <button name="btnDelete" class="btn btnDel" value="@item.ProductID">Delete</button>
+        </td>
+    </tr>
+}
+
+    <tr>
+        <th>
+        </th>
+        <th>
+        </th>
+        <th>
+        </th>
+        <th>
+        </th>
+        <th>
+            <b>Total: $@ViewBag.Sum</b>
+        </th>
+        <th>
+        </th>
+        <th></th>
+    </tr>
+
+</table>
+
+<script type="text/jscript">
+   //post to remove item & reload view to reflect change
+    function updatePV(id, qty) {
+    //post changes back to controller
+        $.ajax({
+            url: '@Url.Action("UpdateCart", "Orders")',
+            type: 'POST',
+            data: { ProductID: id, Quantity: qty },
+            success: function (data) {
+                //if cart is null, reload parent page
+                if (data == "  Your Shopping Cart is empty") {
+                    window.location.href = '@Url.Action("ShoppingCart", "Orders")';
+                } else {
+                    //otherwise update view with updated detail
+                    $("#cartContainer").load('@Url.Action("_ShoppingCartList", "Orders")');
+                    $("#shoppingCartText").html(data);
+                }
+            },
+            error: function (jqXHR, exception) {
+                alert(exception.toString());
+            }
+        });
+    }
+    //delete product button click
+    $(document).on("blur", ".btnDel", function (e) {
+            //get product id
+            var id = $(this).val();
+            var qty = 0;
+            //update & refresh
+            updatePV(id, qty);
+        });
+
+    $(document).on("blur", ".inputQty", function (e) {
+        //get values
+        var id = $(this).attr("id");
+        var oldQty = $(this).attr('name');
+        var qty = $(this).val();
+        //validate
+        if (qty < 1) {
+            //$(this).html = "1";
+        } else {
+            if (qty != oldQty) {
+                //update & refresh
+                updatePV(id, qty);
+            }
+        }
+    });
+</script>

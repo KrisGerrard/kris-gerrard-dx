@@ -1,0 +1,100 @@
+﻿@model IEnumerable<WebStore.Models.ShoppingCartItem>
+
+@{
+    ViewBag.Title = "CheckOut";
+}
+
+<h2>CheckOut</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.ProductName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Quantity)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Price)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.onBackOrder)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.ProductName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Quantity)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Price)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.onBackOrder)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+        </td>
+    </tr>
+}
+
+</table>
+
+@Scripts.Render("~/bundles/jquery")
+
+<div id="addressContainer">
+    @Html.Action("_ShowAddress")
+</div>
+
+<button id="btnEditOrder" class="btn btn-primary" onclick="location.href='@Url.Action("ShoppingCart", "Orders")'">
+    <i class="glyphicon glyphicon-shopping-cart"></i><text>
+        Edit Order
+    </text>
+</button>
+
+<button id="btnConfirmOrder" class="btn btn-success">
+    <i class="glyphicon glyphicon-credit-card"></i><text>
+        Confirm Order
+    </text>
+</button>
+
+<link href="~/Styles/mustang-modal.css" rel="stylesheet" />
+<script src="~/Scripts/mustang-modal.js"></script>
+<script>
+    $('#btnConfirmOrder').click(function () {
+            var id = $('input[name=radio]:checked').val();
+            $.ajax({
+                url: '@Url.Action("Checkout", "Customers")',
+                type: 'POST',
+                data: { addressID: id },
+                success: function (data) {
+                    MustangModal.prop({
+                        title: "Order confirmed",
+                        body: "Thank you for shopping with Digital X",
+                        buttons: [
+                         {
+                             text: "OK",
+                             callback: function () {
+                                 window.location.href = '@Url.Action("GetOrders", "Orders")';
+                             }
+                         }],
+                        animate: "toggle",
+                        speed: 200,
+                    }).open();
+                },
+                error: function (jqXHR, exception) {
+                    alert(exception.toString());
+                }
+            });
+    });
+</script>

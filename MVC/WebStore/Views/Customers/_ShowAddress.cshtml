@@ -1,0 +1,142 @@
+﻿@model IEnumerable<WebStore.CustomerServiceReference.AddressDTO>
+
+
+<table class="table">
+    <tr>
+        <th>
+            Select Address
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.AddressID)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.AddressTypeName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.City)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Country)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.PostalCode)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Street)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Suburb)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model)
+{
+
+    <tr>
+        <td>
+            @Html.RadioButton("radio", item.AddressID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.AddressID)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.AddressTypeName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.City)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Country)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.PostalCode)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Street)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Suburb)
+        </td>
+    </tr>
+}
+    <tr>
+        <td>
+            @*@Html.RadioButton("radio", 0)*@
+        </td>
+        <td>
+            @*0*@
+        </td>
+        <td>
+            <select id="addresstype">
+                <option value="1">Home</option>
+                <option value="2">Postal</option>
+                <option value="3">Work</option>
+            </select>
+        </td>
+        <td>
+            <input id="city" type="text" />
+        </td>
+        <td>
+            <input id="country" type="text" />
+        </td>
+        <td>
+            <input id="postcode" type="text" />
+        </td>
+        <td>
+            <input id="street" type="text" />
+        </td>
+        <td>
+            <input id="suburb" type="text" />
+        </td>
+    </tr>
+</table>
+
+<button id="btnSaveAddress" class="btn btn-info btn-sm">Save New Address</button><br />
+<text id="warningMessage" class="text-warning"></text>
+
+<script type="text/jscript">
+//For new address add the address to the database, and update the display
+    //trigger on save button click
+    $('#btnSaveAddress').click(function () {
+
+        //create object
+        var address = {
+            Street: $('#street').val(),
+            Suburb: $('#suburb').val(),
+            City: $('#city').val(),
+            Postcode: $('#postcode').val(),
+            Country: $('#country').val(),
+            AddressType: $('#addresstype').val(),
+        };
+
+        //validate object
+        var valid = true;
+        for (var key in address) {
+            if (address.hasOwnProperty(key)) {
+                if (address[key] == "") {
+                    valid = false;
+                }
+            }
+        }
+
+        //if item is valid process, otherwise warn user
+        if (valid) {
+
+            //post to AddAddress
+            $.ajax({
+                url: '@Url.Action("AddAddress", "Customers")',
+                type: 'POST',
+                contentType: "application/json",
+                data: JSON.stringify({ address: address })
+            });
+
+            //reload partial view
+            $("#addressContainer").load('@Url.Action("_ShowAddress","Customers")');
+            //$("#addressContainer").load('/Customers/_ShowAddress');
+        } else {
+            //display warning message in text
+            $('warningMessage').text("Address cannot contain empty fields");
+        }
+    });
+</script>

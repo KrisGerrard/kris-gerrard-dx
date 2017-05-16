@@ -1,0 +1,26 @@
+﻿@Scripts.Render("~/bundles/jquery")
+
+@{
+    ViewBag.Title = "Shopping Cart";
+}
+
+<h2>Shopping Cart</h2>
+
+@if (ViewBag.content == true)
+{
+    <div id="cartContainer">
+        @Html.Action("_ShoppingCartList")
+    </div>
+}
+else
+{
+    <br /><br /><h4>Your cart is empty - Please buy something or we both will get bored!</h4><br /><br />
+}
+<button  class="btn btn-primary" id="btnContinue" onclick="location.href='@Url.Action("Index", "Products")'">
+    <i class="glyphicon glyphicon-home"></i><text>  Continue Shopping</text>
+</button>
+
+<button  class="btn btn-success" id="btnCheckout" onclick="location.href='@Url.Action("Checkout", "Customers")'" @if (ViewBag.content == false) {  @("disabled='1'") } >
+    <i class="glyphicon glyphicon-credit-card"></i><text>  Checkout</text>
+</button>
+

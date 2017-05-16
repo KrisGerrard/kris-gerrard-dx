@@ -1,0 +1,66 @@
+﻿@model WebStore.Models.Menu
+
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <a href="@Url.Action("Index", "Products")"><img src="@Url.Content("~/Content/images/logo.png")"/></a>
+        <span class="login">@Html.Partial("_LoginPartial","Home")</span>      
+        <span class="shoppingCart">
+            <button id="btnShoppingCart" class="btn btn-block" style="background-color: #1a1a1a;" onclick="location.href='@Url.Action("ShoppingCart", "Orders")'">
+                <i class="glyphicon glyphicon-shopping-cart"></i><text id="shoppingCartText">
+                    @(ViewBag.ShoppingCartMessage == null ? "  Your Shopping Cart is empty" : ViewBag.ShoppingCartMessage)
+                </text>
+            </button>
+        </span>
+        <!-- Toggle grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                @*<span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>*@
+            </button>
+        </div>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                @* Create parent menu *@             
+                @foreach (var item in Model.Items)
+                {
+                <li class="dropdown">
+                    <a href="@Url.Action("ProductsByCat", "Products", new { id = item.MenuItemId })" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false">@item.MenuItemName</a>
+                    <ul class="dropdown-menu">
+                        @* Populate child menu items *@
+                        @if (item.ChildMenuItems.Any())
+                        {
+                            foreach (var subitem in item.ChildMenuItems)
+                            {
+                                <li>
+                                    @Html.ActionLink(subitem.MenuItemName, "ProductsBySubCat", new { id = subitem.MenuItemId })
+                                </li>
+                            }
+                        }
+                    </ul>
+                </li>
+                }
+                <li>@Html.ActionLink("Top Selling", "Home")</li>
+            </ul>
+            @*<form class="navbar-form navbar-left">
+                <div class="panel panel-default">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search">
+                    </div>
+                    <button type="submit" class="btn btn-default">Submit</button>
+                </div>
+            </form>*@
+            @*<ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false">Company</a>
+                    <ul class="dropdown-menu">
+                        <li>@Html.ActionLink("About", "Home")</li>
+                        <li>@Html.ActionLink("Contact", "Home")</li>
+                    </ul>
+                </li>
+            </ul>*@
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
